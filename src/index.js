@@ -9,11 +9,15 @@ const path = require('path');
     ],
     keepCase: true
   }
+
   const imageDefinition = await protoLoader.load(path.resolve(__dirname, '../protos/github.com/containerd/containerd/api/services/images/v1/images.proto'), options)
   const imageObject = grpc.loadPackageDefinition(imageDefinition)
-  const imageClient = new imageObject.containerd.services.images.v1.Images('172.30.234.100:9097', grpc.credentials.createInsecure())
+  const imageClient = new imageObject.containerd.services.images.v1.Images(`unix:${process.env.CONTAINERD_SOCKET_PATH || '/run/containerd/containerd.sock'}`, grpc.credentials.createInsecure())
 
-  imageClient.List({ filters: [] }, { "containerd-namespace": "jsctr" }, (err, images) => {
+  const metadata = new grpc.Metadata()
+  metadata.add('containerd-namespace', process.env.CONTAINERD_NAMESPACE || 'jsctr')
+
+  imageClient.List({ filters: [] }, metadata, (err, images) => {
     if (err) throw err
     console.log(images)
   })
