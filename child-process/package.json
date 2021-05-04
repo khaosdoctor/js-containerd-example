@@ -1,14 +1,14 @@
 {
   "name": "child-process",
   "version": "1.0.0",
-  "description": "",
+  "description": "Child process implementation for a containerd integration",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "sudo node ./src/server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Lucas Santos <hello@lsantos.dev>",
+  "license": "MIT",
   "dependencies": {
     "koa": "^2.13.1"
   }
