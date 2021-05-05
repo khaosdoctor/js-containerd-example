@@ -8,7 +8,8 @@ class Containerd {
   #ACTIONS = {
     PAUSE: 'pause',
     RESUME: 'resume',
-    STOP: 'kill'
+    STOP: 'kill',
+    REMOVE: 'rm'
   }
 
   constructor () {
@@ -21,7 +22,7 @@ class Containerd {
     return stdout.split('\n').slice(0, -1)
   }
 
-  async listImages (namespace="default") {
+  async listImages (namespace = "default") {
     const { stdout, stderr } = await execAsync(`ctr -n ${namespace} i ls -q`)
     if (stderr) throw new Error(stderr)
 
@@ -38,40 +39,55 @@ class Containerd {
     })
   }
 
-  async pull (imageName, namespace='default') {
+  async pull (imageName, namespace = 'default') {
     const { stderr } = await execAsync(`ctr -n ${namespace} i pull ${imageName}`)
     if (stderr) throw new Error(stderr)
     return true
   }
 
-  async createContainer (id, imageName, opts={}, namespace='default') {
+  async createContainer (id, imageName, opts = {}, namespace = 'default') {
+    const image = (await this.listImages(namespace)).find((image) => image === imageName)
+    if (!image) await this.pull(imageName, namespace)
+
     const commandOptions = Object.keys(opts).map((optName) => {
       if (!opts[optName]) return
-      if (typeof opts[optName] === 'boolean') return `--${optName}`
+      if (opts[optName] === '') return `--${optName}`
       return `--${optName}="${opts[optName]}"`
     })
 
-    const {stderr} = await execAsync(`sudo ctr -n ${namespace} c create ${commandOptions.join(' ')} ${imageName} ${id}`)
+    const { stderr } = await execAsync(`sudo ctr -n ${namespace} c create ${commandOptions.join(' ')} ${imageName} ${id}`)
     if (stderr) throw new Error(stderr)
-    return
+    return id
   }
 
-  async listContainers (namespace='default') {
-    const {stdout, stderr} = execAsync(`ctr -n ${namespace} c ls -q`)
+  async listContainers (namespace = 'default') {
+    const { stdout, stderr } = await execAsync(`ctr -n ${namespace} c ls -q`)
     if (stderr) throw new Error(stderr)
-    return stdout.split('\n').slice(0,-1)
+    return stdout.split('\n').slice(0, -1)
   }
 
-  async listTasks (namespace='default') {
-    const {stdout, stderr} = execAsync(`ctr -n ${namespace} task ls -q`)
+  async removeContainer (id, namespace = 'default') {
+    const { stderr } = await execAsync(`ctr -n ${namespace} c rm ${id}`)
     if (stderr) throw new Error(stderr)
-    return stdout.split('\n').slice(0,-1)
+    return id
+  }
+
+  async listTasks (namespace = 'default') {
+    const { stdout, stderr } = await execAsync(`ctr -n ${namespace} task ls -q`)
+    if (stderr) throw new Error(stderr)
+    return stdout.split('\n').slice(0, -1)
 
   }
 
-  async startTask (id, opt={detach: true}, namespace='default') {
+  async startTask (id, opt = { detach: true }, namespace = 'default') {
+    const taskExists = (await this.listTasks(namespace)).filter(task => task === id)
+    if (taskExists) {
+      await this.resumeTask(id, namespace)
+      return
+    }
+
     if (opt.detach) {
-      const {stderr} = execAsync(`sudo ctr -n ${namespace} task start -d ${id}`)
+      const { stderr } = await execAsync(`sudo ctr -n ${namespace} task start -d ${id}`)
       if (stderr) throw new Error(stderr)
       return id
     }
@@ -92,21 +108,27 @@ class Containerd {
     })
   }
 
-  async stopTask (id, namespace='default') {
+  async stopTask (id, namespace = 'default') {
     return this.#taskAction(id, namespace, this.#ACTIONS.STOP)
   }
 
-  async pauseTask (id, namespace='default') {
+  async pauseTask (id, namespace = 'default') {
     return this.#taskAction(id, namespace, this.#ACTIONS.PAUSE)
   }
 
-  async resumeTask (id, namespace='default') {
+  async resumeTask (id, namespace = 'default') {
     return this.#taskAction(id, namespace, this.#ACTIONS.RESUME)
+  }
+
+  async removeTask (id, namespace = 'default') {
+    await this.resumeTask(id, namespace)
+    await this.stopTask(id, namespace)
+    return this.#taskAction(id, namespace, this.#ACTIONS.REMOVE)
   }
 
   async #taskAction (id, namespace, action) {
     if (!action in this.#ACTIONS) throw new Error('Action not defined')
-    const {stderr} = await execAsync(`sudo ctr -n ${namespace} task ${this.#ACTIONS[action]} ${id}`)
+    const { stderr } = await execAsync(`sudo ctr -n ${namespace} task ${this.#ACTIONS[action]} ${id}`)
     if (stderr) throw new Error(stderr)
     return id
   }
