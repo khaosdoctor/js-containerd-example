@@ -1,11 +1,13 @@
 const Koa = require('koa')
 const Router = require('@koa/router')
-const Containerd = require('./containerdClient.js')
+const bodyParser = require('koa-bodyparser')
+const Containerd = require('./Containerd.js')
 
 const app = new Koa()
 const router = new Router()
 const ctr = new Containerd()
 
+app.use(bodyParser())
 app.use(router.routes())
 app.use(router.allowedMethods())
 
@@ -36,5 +38,37 @@ router.post('/:namespace/images/:registry/:repository/:name', async (ctx) => {
   if (!result) ctx.status = 500
 })
 
+router.post('/:namespace/containers/:name', async (ctx) => {
+  const { namespace, name } = ctx.params
+  const { image } = ctx.request.body
+  const result = await ctr.createContainer(name, image, ctx.query, namespace)
+  ctx.body = {
+    image,
+    status: 'created',
+    name: result
+  }
+})
 
-app.listen(3000, () => console.log('listening'))
+router.delete('/:namespace/containers/:name', async (ctx) => {
+  const { namespace, name } = ctx.params
+  await ctr.removeContainer(name, namespace)
+  ctx.status = 204
+})
+
+router.post('/:namespace/tasks/:name', async (ctx) => {
+  const { namespace, name } = ctx.params
+  console.log(!!ctx.query.detach)
+  await ctr.startTask(name, { detach: !!ctx.query.detach }, namespace)
+})
+
+router.delete('/:namespace/tasks/:name', async (ctx) => {
+  const { namespace, name } = ctx.params
+  await ctr.removeTask(name, namespace)
+})
+
+router.put('/:namespace/tasks/:name', async (ctx) => {
+  const { namespace, name } = ctx.params
+  await ctr.pauseTask(name, namespace)
+})
+
+app.listen(51052, () => console.log('listening'))
