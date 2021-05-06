@@ -1,0 +1,85 @@
+{
+  "info": [
+    {
+      "digest": "sha256:4010fde010df3c7e70d04c5fe12faf8f16bd5090f0fc01f7e92b03952a7907e6",
+      "size": {
+        "low": 1657,
+        "high": 0,
+        "unsigned": false
+      },
+      "created_at": {
+        "seconds": {
+          "low": 1620237788,
+          "high": 0,
+          "unsigned": false
+        },
+        "nanos": 759635808
+      },
+      "updated_at": {
+        "seconds": {
+          "low": -2006054656,
+          "high": -15,
+          "unsigned": false
+        }
+      },
+      "labels": {
+        "containerd.io/distribution.source.docker.io": "khaosdoctor/go-vote-api",
+        "containerd.io/gc.ref.snapshot.overlayfs": "sha256:4ffd0e44a36fe49b2decf6361aeeb7912f8a23c875faa1d8495f097fc5a3c5e4"
+      }
+    },
+    {
+      "digest": "sha256:51900ff400105cd2289de092d12d76959f3d190a27ffcd693705ccf902ec4a84",
+      "size": {
+        "low": 2201697,
+        "high": 0,
+        "unsigned": false
+      },
+      "created_at": {
+        "seconds": {
+          "low": 1620237788,
+          "high": 0,
+          "unsigned": false
+        },
+        "nanos": 761039712
+      },
+      "updated_at": {
+        "seconds": {
+          "low": -2006054656,
+          "high": -15,
+          "unsigned": false
+        }
+      },
+      "labels": {
+        "containerd.io/distribution.source.docker.io": "khaosdoctor/go-vote-api"
+      }
+    },
+    {
+      "digest": "sha256:51dd0ec4b871707363699fcc75b7d7538cfa8f53cc83c8c82ef57acbc9a57fc9",
+      "size": {
+        "low": 528,
+        "high": 0,
+        "unsigned": false
+      },
+      "created_at": {
+        "seconds": {
+          "low": 1620237788,
+          "high": 0,
+          "unsigned": false
+        },
+        "nanos": 750817786
+      },
+      "updated_at": {
+        "seconds": {
+          "low": -2006054656,
+          "high": -15,
+          "unsigned": false
+        }
+      },
+      "labels": {
+        "containerd.io/distribution.source.docker.io": "khaosdoctor/go-vote-api",
+        "containerd.io/gc.ref.content.0": "sha256:4010fde010df3c7e70d04c5fe12faf8f16bd5090f0fc01f7e92b03952a7907e6",
+        "containerd.io/gc.ref.content.1": "sha256:51900ff400105cd2289de092d12d76959f3d190a27ffcd693705ccf902ec4a84"
+      }
+    }
+  ]
+}
