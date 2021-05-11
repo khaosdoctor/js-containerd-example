@@ -72,16 +72,19 @@ router.delete('/:namespace/containers/:name', async (ctx) => {
 router.post('/:namespace/tasks/:name', async (ctx) => {
   const { namespace, name } = ctx.params
   await ctr.startTask(name, { detach: !!ctx.query.detach }, namespace)
+  ctx.status = 201
 })
 
 router.delete('/:namespace/tasks/:name', async (ctx) => {
   const { namespace, name } = ctx.params
   await ctr.removeTask(name, namespace)
+  ctx.status = 204
 })
 
 router.put('/:namespace/tasks/:name', async (ctx) => {
   const { namespace, name } = ctx.params
   await ctr.pauseTask(name, namespace)
+  ctx.status = 200
 })
 
 app.listen(51052, () => console.log('API listening on 51052'))
