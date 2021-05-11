@@ -1,6 +1,5 @@
 const util = require('util')
 const { exec, spawn } = require('child_process')
-const { acceptsEncodings } = require('koa/lib/request')
 const execAsync = util.promisify(exec)
 
 class Containerd {
@@ -57,7 +56,7 @@ class Containerd {
     if (!image) await this.pull(imageName, namespace)
 
     const commandOptions = Object.keys(opts).map((optName) => {
-      if (!opts[optName]) return
+      if (opts[optName] === undefined || opts[optName] === null) return
       if (opts[optName] === '') return `--${optName}`
       return `--${optName}='${opts[optName]}'`
     })
@@ -128,15 +127,18 @@ class Containerd {
   }
 
   async removeTask (id, namespace = 'default') {
-    await this.resumeTask(id, namespace)
+    try {
+      await this.resumeTask(id, namespace)
+    } catch { }
     await this.stopTask(id, namespace)
-    return this.#taskAction(id, namespace, this.#ACTIONS.REMOVE)
+    await this.#taskAction(id, namespace, this.#ACTIONS.REMOVE)
+    return
   }
 
   async #taskAction (id, namespace, action) {
     if (!action in this.#ACTIONS) throw new Error('Action not defined')
-    const { stderr } = await execAsync(`sudo ctr -n ${namespace} task ${this.#ACTIONS[action]} ${id}`)
-    if (stderr) throw new Error(stderr)
+    const { stderr } = await execAsync(`sudo ctr -n ${namespace} task ${action} ${id}`)
+    console.log(stderr)
     return id
   }
 }
