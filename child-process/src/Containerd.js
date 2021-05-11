@@ -88,7 +88,7 @@ class Containerd {
 
   async startTask (id, opt = { detach: true }, namespace = 'default') {
     const taskExists = (await this.listTasks(namespace)).filter(task => task === id)
-    if (taskExists) {
+    if (taskExists.length > 0) {
       await this.resumeTask(id, namespace)
       return
     }

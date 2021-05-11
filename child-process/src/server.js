@@ -71,7 +71,6 @@ router.delete('/:namespace/containers/:name', async (ctx) => {
 
 router.post('/:namespace/tasks/:name', async (ctx) => {
   const { namespace, name } = ctx.params
-  console.log(!!ctx.query.detach)
   await ctr.startTask(name, { detach: !!ctx.query.detach }, namespace)
 })
 
