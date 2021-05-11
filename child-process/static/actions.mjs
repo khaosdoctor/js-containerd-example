@@ -83,6 +83,40 @@ export async function listContainers () {
   $('#containerList').appendChild(list)
 }
 
+export async function listTasks () {
+  const taskList = $('#taskList')
+  const tasks = await Get(`${window.namespace}/tasks`)
+
+  if (tasks.length <= 0) {
+    taskList.innerHTML = 'No tasks yet'
+    return
+  }
+
+  const list = document.createElement('ul')
+  for (const task of tasks) {
+    const listItem = document.createElement('li')
+    listItem.dataset.name = task
+
+    const div = document.createElement('div')
+    div.classList.add(`task__${task}`, 'inline')
+
+    const span = document.createElement('span')
+    span.textContent = task
+
+    const deletebtn = document.createElement('button')
+    deletebtn.onclick = deleteTask(task)
+    deletebtn.textContent = 'Kill task'
+
+    div.appendChild(span)
+    div.appendChild(deletebtn)
+    listItem.appendChild(div)
+
+    list.appendChild(listItem)
+  }
+  $('#taskList').innerHTML = ''
+  $('#taskList').appendChild(list)
+}
+
 export async function pullImage (e) {
   e.target.innerHTML = 'Pulling...'
   const [registry, repository, fullName] = $('#imageName').value.split('/')
@@ -94,7 +128,7 @@ export async function pullImage (e) {
 
 function createContainer (name, image) {
   return async () => {
-    await Post(`${window.namespace}/containers/${name}-${Date.now()}`, { image })
+    await Post(`${window.namespace}/containers/${name}-${Date.now()}?net-host=''`, { image })
     await listContainers()
   }
 }
@@ -115,8 +149,21 @@ function deleteContainer (containerName) {
   }
 }
 
-function createTask (containerName) {
-  return async () => {
+function deleteTask (taskName) {
+  return async ({ target }) => {
+    target.textContent = 'Deleting...'
+    await Delete(`${window.namespace}/tasks/${taskName}`)
+    listTasks()
+    listContainers()
+  }
+}
 
+function createTask (containerName) {
+  return async ({ target }) => {
+    target.textContent = 'Creating...'
+    await Post(`${window.namespace}/tasks/${containerName}?detach=1`)
+    target.textContent = 'Created...'
+    target.disabled = true
+    await listTasks()
   }
 }
