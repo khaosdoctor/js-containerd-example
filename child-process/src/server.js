@@ -4,8 +4,16 @@ const bodyParser = require('koa-bodyparser')
 const Containerd = require('./Containerd.js')
 
 const app = new Koa()
+const static = new Koa()
 const router = new Router()
 const ctr = new Containerd()
+
+app.use(async (ctx, next) => {
+  ctx.set('Access-Control-Allow-Origin', '*')
+  ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  ctx.set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS')
+  await next()
+})
 
 app.use(bodyParser())
 app.use(router.routes())
@@ -15,6 +23,12 @@ router.get('/:namespace/images', async (ctx) => {
   const {namespace} = ctx.params
   const images = await ctr.listImages(namespace)
   ctx.body = images
+})
+
+router.delete('/:namespace/images/:registry/:repository/:name', async (ctx) => {
+  const { namespace, registry, repository, name } = ctx.params
+  await ctr.removeImage(`${registry}/${repository}/${name}`, namespace)
+  ctx.status = 204
 })
 
 router.get('/:namespace/containers', async (ctx) => {
@@ -71,4 +85,7 @@ router.put('/:namespace/tasks/:name', async (ctx) => {
   await ctr.pauseTask(name, namespace)
 })
 
-app.listen(51052, () => console.log('listening'))
+app.listen(51052, () => console.log('API listening on 51052'))
+
+static.use(require('koa-static')(require('path').resolve(__dirname, '../static')))
+static.listen(9091, () => console.log('Application listening on 9091'))

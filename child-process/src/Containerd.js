@@ -22,7 +22,7 @@ class Containerd {
     return stdout.split('\n').slice(0, -1)
   }
 
-  async listImages (namespace = "default") {
+  async listImages (namespace = 'default') {
     const { stdout, stderr } = await execAsync(`ctr -n ${namespace} i ls -q`)
     if (stderr) throw new Error(stderr)
 
@@ -39,6 +39,13 @@ class Containerd {
     })
   }
 
+  async removeImage (imageName, namespace = 'default') {
+    const { stderr } = await execAsync(`ctr -n ${namespace} i rm ${imageName}`)
+    if (stderr) throw new Error(stderr)
+
+    return true
+  }
+
   async pull (imageName, namespace = 'default') {
     const { stderr } = await execAsync(`ctr -n ${namespace} i pull ${imageName}`)
     if (stderr) throw new Error(stderr)
@@ -52,7 +59,7 @@ class Containerd {
     const commandOptions = Object.keys(opts).map((optName) => {
       if (!opts[optName]) return
       if (opts[optName] === '') return `--${optName}`
-      return `--${optName}="${opts[optName]}"`
+      return `--${optName}='${opts[optName]}'`
     })
 
     const { stderr } = await execAsync(`sudo ctr -n ${namespace} c create ${commandOptions.join(' ')} ${imageName} ${id}`)
