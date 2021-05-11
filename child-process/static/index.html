@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Amazing Container API</title>
+  <script type="module" src="fetch.mjs"></script>
+  <script type="module" src="actions.mjs"></script>
+  <script type="module" src="index.mjs"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="main__title">
+    <h1>The amazing containerd API</h1>
+    <h5><i>and the most beautiful, too!</i></h5>
+  </section>
+
+  <section class="namespace">
+    <div class="namespace__selection inline">
+      <h2>Current Namespace:</h2>
+      <input type="text" id="namespaceName">
+      <span class="toast"></span>
+    </div>
+  </section>
+
+
+  <section class="pull">
+    <div class="image__pull inline">
+      <h2>Pull new Image:</h2>
+      <input type="text" id="imageName">
+      <button id="imagePullAction">Pull</button>
+    </div>
+  </section>
+
+  <section class="images">
+    <div class="title inline">
+      <h1>Local images</h1>
+      <button id="imageListAction">Reload image list</button>
+    </div>
+    <div id="imageList">no images yet</div>
+  </section>
+
+  <section class="containers">
+    <div class="title inline">
+      <h1>Local containers</h1>
+      <button id="containerListAction">Reload container list</button>
+    </div>
+    <div id="containerList">no containers yet</div>
+  </section>
+
+</body>
+</html>
