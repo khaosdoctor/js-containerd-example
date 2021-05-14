@@ -128,7 +128,7 @@ export async function pullImage (e) {
 
 function createContainer (name, image) {
   return async () => {
-    await Post(`${window.namespace}/containers/${name}-${Date.now()}?net-host=''`, { image })
+    await Post(`${window.namespace}/containers/${name}-${Date.now()}?net-host`, { image })
     await listContainers()
   }
 }
